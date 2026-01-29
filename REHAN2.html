@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChronoAge - Creative Age Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated Background Elements */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) translateX(100px); opacity: 0; }
+        }
+
+        /* Main Calculator Container */
+        .calculator {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 30px;
+            border-radius: 20px;
+            width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .calculator h2 {
+            margin-bottom: 25px;
+            color: #302b63;
+            font-size: 32px;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .calculator h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            border-radius: 2px;
+        }
+
+        .calculator .tagline {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        /* Input Container */
+        .input-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            flex: 1;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .date-input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .date-input::placeholder {
+            color: #aaa;
+            font-weight: normal;
+        }
+
+        /* Button Styling */
+        .calculate-btn {
+            width: 100%;
+            padding: 16px;
+            margin: 15px 0 20px 0;
+            border: none;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(106, 17, 203, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .calculate-btn:after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0));
+            transform: rotate(45deg);
+            transition: all 0.5s;
+        }
+
+        .calculate-btn:hover:after {
+            left: 100%;
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 3px solid white;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px #333;
+        }
+
+        /* Results Display */
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7ff, #e3e7ff);
+            border-radius: 15px;
+            animation: fadeIn 0.6s ease-out;
+            border-left: 5px solid #6a11cb;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .age-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+
+        .age-unit {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            width: 30%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .age-unit:hover {
+            transform: translateY(-5px);
+        }
+
+        .age-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #302b63;
+            margin-bottom: 5px;
+        }
+
+        .age-label {
+            font-size: 13px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .age-text {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Error Styling */
+        .error {
+            color: #ff4757;
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255, 71, 87, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #ff4757;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Additional Stats */
+        .additional-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .stat-box {
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #302b63;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 20px;
+            color: #888;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        /* Celebration Animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            z-index: 2;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="particles" id="particles"></div>
+
+<!-- Main Calculator -->
+<div class="calculator">
+    <h2>⏳ ChronoAge</h2>
+    <p class="tagline">Discover your journey through time</p>
+    
+    <!-- Theme Selector -->
+    <div class="theme-selector">
+        <div class="theme-btn active" style="background: linear-gradient(135deg, #6a11cb, #2575fc);" onclick="changeTheme('purple')"></div>
+        <div class="theme-btn" style="background: linear-gradient(135deg, #ff9a9e, #fad0c4);" onclick="changeTheme('pink')"></div>
+        <div class="theme-btn" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);" onclick="changeTheme('blue')"></div>
+        <div class="theme-btn" style="background: linear-gradient(135deg, #d4fc79, #96e6a1);" onclick="changeTheme('green')"></div>
+    </div>
+
+    <!-- Date Inputs -->
+    <div class="input-container">
+        <div class="input-group">
+            <label>📅 DAY</label>
+            <input type="number" id="day" class="date-input" placeholder="DD" min="1" max="31">
+        </div>
+        <div class="input-group">
+            <label>📆 MONTH</label>
+            <input type="number" id="month" class="date-input" placeholder="MM" min="1" max="12">
+        </div>
+        <div class="input-group">
+            <label>📊 YEAR</label>
+            <input type="number" id="year" class="date-input" placeholder="YYYY" min="1900" max="2024">
+        </div>
+    </div>
+
+    <!-- Calculate Button -->
+    <button class="calculate-btn" onclick="calculateAge()">
+        ⚡ Calculate My Age
+    </button>
+
+    <!-- Results Display -->
+    <div class="result" id="result" style="display: none;">
+        <h3 style="color: #302b63; margin-bottom: 15px;">✨ Your Time Journey</h3>
+        
+        <div class="age-display">
+            <div class="age-unit">
+                <div class="age-value" id="years">0</div>
+                <div class="age-label">Years</div>
+            </div>
+            <div class="age-unit">
+                <div class="age-value" id="months">0</div>
+                <div class="age-label">Months</div>
+            </div>
+            <div class="age-unit">
+                <div class="age-value" id="days">0</div>
+                <div class="age-label">Days</div>
+            </div>
+        </div>
+
+        <p class="age-text" id="age-message"></p>
+
+        <!-- Additional Stats -->
+        <div class="additional-stats" id="additional-stats">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Error Display -->
+    <div class="error" id="error" style="display: none;"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Every moment counts • Made with ❤️</p>
+    </div>
+</div>
+
+<script>
+    // Create animated particles
+    function createParticles() {
+        const particles = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.animationDelay = `${Math.random() * 15}s`;
+            particle.style.animationDuration = `${10 + Math.random() * 10}s`;
+            particles.appendChild(particle);
+        }
+    }
+
+    // Theme changer
+    function changeTheme(theme) {
+        const body = document.body;
+        const themeBtns = document.querySelectorAll('.theme-btn');
+        
+        themeBtns.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        const gradients = {
+            purple: ['#0f0c29', '#302b63', '#24243e'],
+            pink: ['#ff9a9e', '#fad0c4', '#a18cd1'],
+            blue: ['#a1c4fd', '#c2e9fb', '#a1c4fd'],
+            green: ['#d4fc79', '#96e6a1', '#96e6a1']
+        };
+        
+        body.style.background = `linear-gradient(135deg, ${gradients[theme][0]}, ${gradients[theme][1]}, ${gradients[theme][2]})`;
+    }
+
+    // Create confetti animation
+    function createConfetti() {
+        const container = document.body;
+        for (let i = 0; i < 100; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
+            confetti.style.width = `${Math.random() * 10 + 5}px`;
+            confetti.style.height = confetti.style.width;
+            confetti.style.animation = `confetti-fall ${Math.random() * 3 + 2}s linear forwards`;
+            container.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 3000);
+        }
+    }
+
+    // Calculate age
+    function calculateAge() {
+        const day = parseInt(document.getElementById("day").value);
+        const month = parseInt(document.getElementById("month").value);
+        const year = parseInt(document.getElementById("year").value);
+
+        const result = document.getElementById("result");
+        const error = document.getElementById("error");
+        const ageMessage = document.getElementById("age-message");
+        const additionalStats = document.getElementById("additional-stats");
+
+        result.style.display = "none";
+        error.style.display = "none";
+
+        // Validation
+        if (!day || !month || !year) {
+            error.textContent = "🚫 Please enter a complete date.";
+            error.style.display = "block";
+            return;
+        }
+
+        if (day < 1 || day > 31) {
+            error.textContent = "📅 Day must be between 1 and 31.";
+            error.style.display = "block";
+            return;
+        }
+
+        if (month < 1 || month > 12) {
+            error.textContent = "📆 Month must be between 1 and 12.";
+            error.style.display = "block";
+            return;
+        }
+
+        const currentYear = new Date().getFullYear();
+        if (year < 1900 || year > currentYear) {
+            error.textContent = `📊 Year must be between 1900 and ${currentYear}.`;
+            error.style.display = "block";
+            return;
+        }
+
+        const birthDate = new Date(year, month - 1, day);
+        const today = new Date();
+
+        // Validate date exists
+        if (birthDate.getDate() !== day || birthDate.getMonth() !== month - 1 || birthDate.getFullYear() !== year) {
+            error.textContent = "❌ Invalid date. Please check the day and month combination.";
+            error.style.display = "block";
+            return;
+        }
+
+        if (birthDate > today) {
+            error.textContent = "⏰ Date of birth cannot be in the future!";
+            error.style.display = "block";
+            return;
+        }
+
+        // Calculate age
+        let years = today.getFullYear() - birthDate.getFullYear();
+        let months = today.getMonth() - birthDate.getMonth();
+        let days = today.getDate() - birthDate.getDate();
+
+        if (days < 0) {
+            months--;
+            const previousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            days += previousMonth.getDate();
+        }
+
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+
+        // Update display
+        document.getElementById("years").textContent = years;
+        document.getElementById("months").textContent = months;
+        document.getElementById("days").textContent = days;
+
+        // Generate fun message
+        const messages = [
+            `You've experienced ${(years * 365 + months * 30 + days).toLocaleString()} sunrises!`,
+            `That's ${Math.floor((years * 365 + months * 30 + days) / 7).toLocaleString()} weeks of wisdom!`,
+            `You've lived through ${years} New Year celebrations!`,
+            `Approximately ${(years * 12 + months).toLocaleString()} full moons have passed!`
+        ];
+
+        ageMessage.innerHTML = `<span class="highlight">${messages[Math.floor(Math.random() * messages.length)]}</span>`;
+
+        // Calculate additional stats
+        const totalDays = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+        const totalWeeks = Math.floor(totalDays / 7);
+        const totalMonths = years * 12 + months;
+        const nextBirthday = new Date(today.getFullYear(), month - 1, day);
+        if (nextBirthday < today) {
+            nextBirthday.setFullYear(nextBirthday.getFullYear() + 1);
+        }
+        const daysUntilBirthday = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+
+        additionalStats.innerHTML = `
+            <div class="stat-box">
+                <div class="stat-value">${totalDays.toLocaleString()}</div>
+                <div class="stat-label">Total Days</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${totalWeeks.toLocaleString()}</div>
+                <div class="stat-label">Total Weeks</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${totalMonths.toLocaleString()}</div>
+                <div class="stat-label">Total Months</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${daysUntilBirthday}</div>
+                <div class="stat-label">Days Until Next Birthday</div>
+            </div>
+        `;
+
+        // Show results
+        result.style.display = "block";
+        
+        // Add animation to age units
+        const ageUnits = document.querySelectorAll('.age-unit');
+        ageUnits.forEach((unit, index) => {
+            unit.style.animation = 'none';
+            setTimeout(() => {
+                unit.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s both`;
+            }, 10);
+        });
+
+        // Create confetti for special ages
+        if (days === 0 && months === 0) {
+            createConfetti();
+            ageMessage.innerHTML = `<span class="highlight">🎉 HAPPY BIRTHDAY! 🎂 Today is your special day!</span>`;
+        }
+    }
+
+    // Add event listener for Enter key
+    document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            calculateAge();
+        }
+    });
+
+    // Add input validation
+    document.querySelectorAll('.date-input').forEach(input => {
+        input.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // Auto-advance for better UX
+            if (this.value.length === this.maxLength) {
+                const inputs = document.querySelectorAll('.date-input');
+                const currentIndex = Array.from(inputs).indexOf(this);
+                if (currentIndex < inputs.length - 1) {
+                    inputs[currentIndex + 1].focus();
+                }
+            }
+        });
+    });
+
+    // Initialize
+    window.onload = function() {
+        createParticles();
+        
+        // Set current date as placeholder
+        const today = new Date();
+        document.getElementById('year').placeholder = today.getFullYear();
+        document.getElementById('month').placeholder = String(today.getMonth() + 1).padStart(2, '0');
+        document.getElementById('day').placeholder = String(today.getDate()).padStart(2, '0');
+        
+        // Focus on day input
+        document.getElementById('day').focus();
+    };
+</script>
+
+</body>
+</html>
